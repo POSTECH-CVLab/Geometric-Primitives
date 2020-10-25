@@ -2,9 +2,9 @@ import numpy as np
 import copy
 import time
 
-import brick
-import rules
-import utils_primitive
+from geometric_primitives import brick
+from geometric_primitives import rules
+from geometric_primitives import utils
 
 
 def convert_to_bricks(X, A):
@@ -59,9 +59,9 @@ def get_connection_type(brick_1, brick_2):
 
 def _fun_validate_overlap(min_max_1, brick_2):
     vert_2 = brick_2.get_vertices()
-    min_max_2 = utils_primitive.get_min_max_3d(vert_2)
+    min_max_2 = utils.get_min_max_3d(vert_2)
 
-    res = utils_primitive.check_overlap_3d(min_max_1, min_max_2)
+    res = utils.check_overlap_3d(min_max_1, min_max_2)
 
     return res
 
@@ -70,16 +70,16 @@ def _fun_validate_contact(pos_1, vert_1, min_max_1, brick_2):
     vert_2 = brick_2.get_vertices()
 
     if np.abs(pos_1[2] - pos_2[2]) == 1:
-        min_max_2 = utils_primitive.get_min_max_3d(vert_2)
+        min_max_2 = utils.get_min_max_3d(vert_2)
 
-        res = utils_primitive.check_overlap_2d(min_max_1[:2], min_max_2[:2])
+        res = utils.check_overlap_2d(min_max_1[:2], min_max_2[:2])
         if res: 
             return 1
     return 0
 
 def fun_validate_overlap_outer(brick_1, list_bricks):
     vert_1 = brick_1.get_vertices()
-    min_max_1 = utils_primitive.get_min_max_3d(vert_1)
+    min_max_1 = utils.get_min_max_3d(vert_1)
 
     results = [_fun_validate_overlap(min_max_1, elem) for elem in list_bricks]
 
@@ -92,7 +92,7 @@ def fun_validate_contact_outer(brick_1, list_bricks):
 
     pos_1 = brick_1.get_position()
     vert_1 = brick_1.get_vertices()
-    min_max_1 = utils_primitive.get_min_max_3d(vert_1)
+    min_max_1 = utils.get_min_max_3d(vert_1)
 
     results = [_fun_validate_contact(pos_1, vert_1, min_max_1, elem) for elem in list_bricks]
 
@@ -355,10 +355,10 @@ class Bricks(object):
                 pos_2 = brick_2.get_position()
                 vert_1 = brick_1.get_vertices()
                 vert_2 = brick_2.get_vertices()
-                min_max_1 = utils_primitive.get_min_max_3d(vert_1)
-                min_max_2 = utils_primitive.get_min_max_3d(vert_2)
+                min_max_1 = utils.get_min_max_3d(vert_1)
+                min_max_2 = utils.get_min_max_3d(vert_2)
 
-                if np.abs(pos_1[2] - pos_2[2]) == 1 and utils_primitive.check_overlap_2d(min_max_1[:2], min_max_2[:2]) == 1:
+                if np.abs(pos_1[2] - pos_2[2]) == 1 and utils.check_overlap_2d(min_max_1[:2], min_max_2[:2]) == 1:
                     A[ind_1, ind_2] = 1
                     conn = get_connection_type(bricks_[ind_1], bricks_[ind_2])
                     connection_type.append(conn)

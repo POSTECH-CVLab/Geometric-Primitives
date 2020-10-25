@@ -4,9 +4,9 @@ from datetime import datetime
 import os
 import copy
 
-import brick
-import bricks
-import rules
+from geometric_primitives import brick
+from geometric_primitives import bricks
+from geometric_primitives import rules
 
 
 def check_overlap_1d(min_max_1, min_max_2):
