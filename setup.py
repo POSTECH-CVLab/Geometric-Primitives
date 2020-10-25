@@ -4,17 +4,17 @@ import sys
 
 
 path_requirements = 'requirements.txt'
-list_packages = ['primitives']
+list_packages = ['geometric_primitives']
 
 with open(path_requirements) as f:
     required = f.read().splitlines()
 
 setup(
-    name='primitives',
+    name='geometric_primitives',
     version='0.1.0',
     author='Jungtaek Kim',
     author_email='jtkim@postech.ac.kr',
-    url='https://github.com/POSTECH-CVLab/3d-primitives',
+    url='https://github.com/POSTECH-CVLab/Geometric-Primitives',
     license='MIT',
     description='It is for constructing a 3D shape.',
     packages=list_packages,
