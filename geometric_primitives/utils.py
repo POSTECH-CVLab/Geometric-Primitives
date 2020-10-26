@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 import os
 import copy
+import open3d as o3d
 
 from geometric_primitives import brick
 from geometric_primitives import bricks
@@ -153,4 +154,8 @@ def save_bricks(bricks_, str_path, str_file=None):
         str_save = os.path.join(str_path, str_file + '.npy')
 
     np.save(str_save, bricks_)
+    return
+
+def visualize(mesh_object):
+    o3d.visualization.draw_geometries(mesh_object)
     return
