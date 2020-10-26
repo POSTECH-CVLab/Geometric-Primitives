@@ -11,7 +11,12 @@ class Brick(object):
         self.direction = 0
         self.vertices = None
 
-    def set_vertices(self):
+        assert np.all(self.size_upper == self.size_lower)
+
+    def get_size(self):
+        return self.size_upper, self.size_lower, self.height
+
+    def _set_vertices(self):
         assert self.position is not None
 
         vertices = []
@@ -53,7 +58,7 @@ class Brick(object):
         assert len(pos) == 3
 
         self.position = np.array(pos)
-        self.set_vertices()
+        self._set_vertices()
 
     def get_position(self):
         return self.position
@@ -62,7 +67,7 @@ class Brick(object):
         assert direc in [0, 1]
 
         self.direction = direc
-        self.set_vertices()
+        self._set_vertices()
 
     def get_direction(self):
         return self.direction
