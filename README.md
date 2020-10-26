@@ -38,3 +38,12 @@ If you would like to uninstall `geometric_primitives`, command it.
 ```shell
 $ pip uninstall geometric_primitives
 ```
+
+## Contributor
+* [Jungtaek Kim](http://jungtaek.github.io) (POSTECH)
+
+## Contact
+* Jungtaek Kim: [jtkim@postech.ac.kr](mailto:jtkim@postech.ac.kr)
+
+## License
+[MIT License](LICENSE)
