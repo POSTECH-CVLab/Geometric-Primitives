@@ -1,6 +1,6 @@
 # Geometric-Primitives
 
-It defines a geometric primitive.
+It defines a geometric primitive for accomplishing 3D shape generation.
 
 ## Installation
 
@@ -31,7 +31,7 @@ $ pip install -r requirements.txt
 $ python setup.py develop
 ```
 
-* Uninstallation
+## Uninstallation
 
 If you would like to uninstall `geometric_primitives`, command it.
 
