@@ -39,6 +39,10 @@ If you would like to uninstall `geometric_primitives`, command it.
 $ pip uninstall geometric_primitives
 ```
 
+## Related Packages
+
+* [Combinatorial-3D-Shape-Generation](https://github.com/POSTECH-CVLab/Combinatorial-3D-Shape-Generation)
+
 ## Contributor
 * [Jungtaek Kim](http://jungtaek.github.io) (POSTECH)
 
