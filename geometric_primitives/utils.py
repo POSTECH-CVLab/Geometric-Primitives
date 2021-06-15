@@ -156,6 +156,24 @@ def save_bricks(bricks_, str_path, str_file=None):
     np.save(str_save, bricks_)
     return
 
+def convert_to_bricks(X, A):
+    list_bricks = []
+    for bx, ba in zip(X, A):
+        brick_ = brick.Brick()
+        brick_.set_position(bx[:3])
+        brick_.set_direction(bx[3])
+
+        list_bricks.append(brick_)
+
+    bricks_ = Bricks(len(list_bricks))
+    bricks_.bricks = list_bricks
+    try:
+        bricks_.validate_all()
+    except:
+        bricks_ = None
+
+    return bricks_
+
 def visualize(mesh_object):
     o3d.visualization.draw_geometries(mesh_object)
     return

@@ -1,6 +1,6 @@
 import numpy as np
 
-import brick
+from geometric_primitives import brick
 
 
 class Voxel(brick.Brick):

@@ -1,29 +1,10 @@
 import numpy as np
 import copy
-import time
 
 from geometric_primitives import brick
 from geometric_primitives import rules
 from geometric_primitives import utils
 
-
-def convert_to_bricks(X, A):
-    list_bricks = []
-    for bx, ba in zip(X, A):
-        brick_ = brick.Brick()
-        brick_.set_position(bx[:3])
-        brick_.set_direction(bx[3])
-
-        list_bricks.append(brick_)
-
-    bricks_ = Bricks(len(list_bricks))
-    bricks_.bricks = list_bricks
-    try:
-        bricks_.validate_all()
-    except:
-        bricks_ = None
-
-    return bricks_
 
 def check_duplicate(bricks_, brick_):
     for cur_brick in bricks_:
@@ -382,69 +363,3 @@ class Bricks(object):
         D = self.get_degree_matrix()
 
         return X, A, D
-
-
-if __name__ == '__main__':
-    import brick
-    import time
-
-    brick1 = brick.Brick()
-    brick2 = brick.Brick()
-    brick3 = brick.Brick()
-
-    brick1.set_position([0, 0, 0])
-    brick1.set_direction(0)
-
-    brick2.set_position([1, -2, 1])
-    brick2.set_direction(1)
-
-    brick3.set_position([-1, -3, 1])
-    brick3.set_direction(0)
-
-    bricks_ = Bricks(6)
-    bricks_.add(brick1)
-    bricks_.add(brick2)
-
-    brick1 = brick.Brick()
-
-    brick1.set_position([0, 0, 0])
-    brick1.set_direction(0)
-
-    bricks_ = Bricks(6)
-    bricks_.add(brick1)
-
-    bricks_._validate_overlap()
-    bricks_.get_possible_contacts()
-
-    def stack(bricks):
-        possible_bricks = bricks.get_possible_contacts()
-        new_bricks = []
-
-        for possible_brick in possible_bricks:
-            copy_bricks = copy.deepcopy(bricks)
-            copy_bricks.add(possible_brick, compute_adjacency_matrix=False, validate_all=False)
-
-            X, A, D = copy_bricks.get_graph()
-            connection_types = copy_bricks.get_connection_types()
-
-            new_bricks.append(copy_bricks)
-
-        return new_bricks
-    
-    list_bricks = [bricks_]
-
-    for ind in range(0, 4):
-        time_start = time.time()
-        new_list_bricks = []
-
-        num_bricks = 0
-        for bricks_ in list_bricks:
-            cur_list_bricks = stack(bricks_)
-            num_bricks += len(cur_list_bricks)
-            if ind < 3:
-                new_list_bricks += cur_list_bricks
-
-        list_bricks = new_list_bricks
-        print(num_bricks)
-        time_end = time.time()
-        print('time consumed: ', time_end - time_start, 'sec.')
