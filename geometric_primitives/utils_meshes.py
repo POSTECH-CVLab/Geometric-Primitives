@@ -90,7 +90,7 @@ def get_mesh_bricks(bricks_, str_type):
         path_brick = os.path.join(path_unit_primitives, str_2_2)
         divider_1 = 2
         divider_2 = 2
-        subtractor_3 = 0.085
+        subtractor_3 = 0.126
     elif str_type == '1_2':
         path_brick = os.path.join(path_unit_primitives, str_1_2)
         divider_1 = 1
