@@ -84,14 +84,25 @@ def fun_validate_origin_outer(brick_):
 
 
 class Bricks:
-    def __init__(self, max_bricks):
+    def __init__(self, max_bricks, str_type):
+        # Now, it only supports a heterogeneous type of primitives.
         self.max_bricks = max_bricks
         self.bricks = []
         self.adjacency_matrix = np.array([])
         self.degree_matrix = np.array([])
         self.connection_types = []
-        self.rules = rules.RULE_CONTACTS_2_4
-        self.probs_rules = rules.PROBS_CONTACTS_2_4
+
+        if str_type == '2_4':
+            self.rules = rules.RULE_CONTACTS_2_4
+            self.probs_rules = rules.PROBS_CONTACTS_2_4
+        elif str_type == '2_2':
+            self.rules = rules.RULE_CONTACTS_2_2
+            self.probs_rules = rules.PROBS_CONTACTS_2_2
+        elif str_type == '1_2':
+            self.rules = rules.RULE_CONTACTS_1_2
+            self.probs_rules = rules.PROBS_CONTACTS_1_2
+        else:
+            raise ValueError('Invalid rule.')
 
     def _validate_overlap(self):
         len_bricks = self.get_length()
