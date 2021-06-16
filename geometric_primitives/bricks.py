@@ -271,11 +271,19 @@ class Bricks:
         ind_rule = np.random.choice(len(self.rules), p=self.probs_rules)
         cur_rule = self.rules[ind_rule]
         
-        translations = cur_rule['translations']
-        direction = cur_rule['direction']
+        translations = copy.deepcopy(cur_rule['translations'])
+        direction = copy.deepcopy(cur_rule['direction'])
 
         ind_trans = np.random.choice(len(translations))
         trans = translations[ind_trans]
+        print(direction, trans)
+
+        if cur_direction == 1:
+            angle = np.pi * 3.0 / 2.0
+            trans = np.dot(np.array([
+                    [np.cos(angle), -np.sin(angle)],
+                    [np.sin(angle), np.cos(angle)],
+                ]), trans)
 
         new_bricks = []
 
