@@ -8,7 +8,7 @@ from geometric_primitives import utils_io
 from geometric_primitives import utils_meshes
 
 
-brick_ = brick.Brick()
+brick_ = brick.Brick(size_upper=[1, 2], size_lower=[1, 2])
 brick_.set_position([0, 0, 0])
 brick_.set_direction(0)
 

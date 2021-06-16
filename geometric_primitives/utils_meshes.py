@@ -83,10 +83,19 @@ def get_voxel(color):
 def get_mesh_bricks(bricks_, str_type):
     if str_type == '2_4':
         path_brick = os.path.join(path_unit_primitives, str_2_4)
+        divider_1 = 2
+        divider_2 = 4
+        subtractor_3 = 0.085
     elif str_type == '2_2':
         path_brick = os.path.join(path_unit_primitives, str_2_2)
+        divider_1 = 2
+        divider_2 = 2
+        subtractor_3 = 0.085
     elif str_type == '1_2':
         path_brick = os.path.join(path_unit_primitives, str_1_2)
+        divider_1 = 1
+        divider_2 = 2
+        subtractor_3 = 0.151
     else:
         raise ValueError('')
 
@@ -107,9 +116,9 @@ def get_mesh_bricks(bricks_, str_type):
     mesh_brick = mesh_bricks[0]
     bound_min = mesh_brick.get_min_bound()
     bound_max = mesh_brick.get_max_bound()
-    unit_axis_1 = (bound_max[0] - bound_min[0]) / 2
-    unit_axis_2 = (bound_max[1] - bound_min[1]) / 4
-    unit_axis_3 = (bound_max[2] - bound_min[2]) - 0.085
+    unit_axis_1 = (bound_max[0] - bound_min[0]) / divider_1
+    unit_axis_2 = (bound_max[1] - bound_min[1]) / divider_2
+    unit_axis_3 = (bound_max[2] - bound_min[2]) - subtractor_3
 
     for brick, mesh_brick, mesh_cube in zip(bricks_.get_bricks(), mesh_bricks, mesh_cubes):
         pos = brick.get_position()
