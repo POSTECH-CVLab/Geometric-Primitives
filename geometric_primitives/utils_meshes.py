@@ -80,8 +80,15 @@ def get_voxel(color):
 
     return mesh_cube
 
-def get_mesh_bricks(bricks_):
-    path_lego_2_4 = os.path.join(path_unit_primitives, str_2_4)
+def get_mesh_bricks(bricks_, str_type):
+    if str_type == '2_4':
+        path_brick = os.path.join(path_unit_primitives, str_2_4)
+    elif str_type == '2_2':
+        path_brick = os.path.join(path_unit_primitives, str_2_2)
+    elif str_type == '1_2':
+        path_brick = os.path.join(path_unit_primitives, str_1_2)
+    else:
+        raise ValueError('')
 
     len_bricks = bricks_.get_length()
     mesh_bricks = []
@@ -90,7 +97,7 @@ def get_mesh_bricks(bricks_):
     for ind_bricks in range(1, len_bricks + 1):
         color = np.random.RandomState(43 * ind_bricks).rand(3)
 
-        mesh_brick = o3d.io.read_triangle_mesh(path_lego_2_4)
+        mesh_brick = o3d.io.read_triangle_mesh(path_brick)
         mesh_brick = preprocess(mesh_brick, color)
         mesh_bricks.append(mesh_brick)
 
@@ -102,7 +109,7 @@ def get_mesh_bricks(bricks_):
     bound_max = mesh_brick.get_max_bound()
     unit_axis_1 = (bound_max[0] - bound_min[0]) / 2
     unit_axis_2 = (bound_max[1] - bound_min[1]) / 4
-    unit_axis_3 = (bound_max[2] - bound_min[2])
+    unit_axis_3 = (bound_max[2] - bound_min[2]) - 0.085
 
     for brick, mesh_brick, mesh_cube in zip(bricks_.get_bricks(), mesh_bricks, mesh_cubes):
         pos = brick.get_position()
