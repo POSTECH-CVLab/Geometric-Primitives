@@ -20,6 +20,20 @@ def preprocess(model, color):
     vertices -= np.matlib.repmat(center, len(model.vertices), 1)
     model.vertices = o3d.utility.Vector3dVector(vertices / scale)
 
+    angle = -np.pi / 2.0
+    model.rotate(np.array([
+        [1.0, 0.0, 0.0],
+        [0.0, np.cos(angle), -np.sin(angle)],
+        [0.0, np.sin(angle), np.cos(angle)],
+    ]))
+
+    angle = np.pi / 2.0
+    model.rotate(np.array([
+        [np.cos(angle), -np.sin(angle), 0.0],
+        [np.sin(angle), np.cos(angle), 0.0],
+        [0.0, 0.0, 1.0],
+    ]))
+
     model.paint_uniform_color(color)
 
     return model
@@ -88,7 +102,7 @@ def get_mesh_bricks(bricks_):
     bound_max = mesh_brick.get_max_bound()
     unit_axis_1 = (bound_max[0] - bound_min[0]) / 2
     unit_axis_2 = (bound_max[1] - bound_min[1]) / 4
-    unit_axis_3 = (bound_max[2] - bound_min[2]) - 0.085
+    unit_axis_3 = (bound_max[2] - bound_min[2])
 
     for brick, mesh_brick, mesh_cube in zip(bricks_.get_bricks(), mesh_bricks, mesh_cubes):
         pos = brick.get_position()
