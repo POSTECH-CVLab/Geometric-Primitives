@@ -5,9 +5,9 @@ from geometric_primitives import brick
 
 class Voxel(brick.Brick):
     def __init__(self):
-        super(Voxel, self).__init__(size_upper=(1, 1), size_lower=(1, 1), height=1)
+        super().__init__(size_upper=(1, 1), size_lower=(1, 1), height=1)
 
-class Voxels(object):
+class Voxels:
     def __init__(self):
         self.voxels = []
 

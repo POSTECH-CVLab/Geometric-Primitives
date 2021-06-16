@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class Brick(object):
+class Brick:
     # TODO: position is on integer grid, it makes vertex coordinates to real numbers.
     def __init__(self, size_upper=[2, 4], size_lower=[2, 4], height=1):
         self.size_upper = np.array(size_upper)

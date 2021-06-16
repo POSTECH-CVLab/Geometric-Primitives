@@ -3,14 +3,9 @@ import copy
 
 from geometric_primitives import brick
 from geometric_primitives import rules
-from geometric_primitives import utils
+from geometric_primitives import utils_validation
 
 
-def check_duplicate(bricks_, brick_):
-    for cur_brick in bricks_:
-        if np.all(cur_brick.get_position() == brick_.get_position()) and cur_brick.get_direction() == brick_.get_direction():
-            return False
-    return True
 
 def get_connection_type(brick_1, brick_2):
     # brick_1 is a yardstick.
@@ -40,9 +35,9 @@ def get_connection_type(brick_1, brick_2):
 
 def _fun_validate_overlap(min_max_1, brick_2):
     vert_2 = brick_2.get_vertices()
-    min_max_2 = utils.get_min_max_3d(vert_2)
+    min_max_2 = utils_validation.get_min_max_3d(vert_2)
 
-    res = utils.check_overlap_3d(min_max_1, min_max_2)
+    res = utils_validation.check_overlap_3d(min_max_1, min_max_2)
 
     return res
 
@@ -51,16 +46,16 @@ def _fun_validate_contact(pos_1, vert_1, min_max_1, brick_2):
     vert_2 = brick_2.get_vertices()
 
     if np.abs(pos_1[2] - pos_2[2]) == 1:
-        min_max_2 = utils.get_min_max_3d(vert_2)
+        min_max_2 = utils_validation.get_min_max_3d(vert_2)
 
-        res = utils.check_overlap_2d(min_max_1[:2], min_max_2[:2])
+        res = utils_validation.check_overlap_2d(min_max_1[:2], min_max_2[:2])
         if res: 
             return 1
     return 0
 
 def fun_validate_overlap_outer(brick_1, list_bricks):
     vert_1 = brick_1.get_vertices()
-    min_max_1 = utils.get_min_max_3d(vert_1)
+    min_max_1 = utils_validation.get_min_max_3d(vert_1)
 
     results = [_fun_validate_overlap(min_max_1, elem) for elem in list_bricks]
 
@@ -73,7 +68,7 @@ def fun_validate_contact_outer(brick_1, list_bricks):
 
     pos_1 = brick_1.get_position()
     vert_1 = brick_1.get_vertices()
-    min_max_1 = utils.get_min_max_3d(vert_1)
+    min_max_1 = utils_validation.get_min_max_3d(vert_1)
 
     results = [_fun_validate_contact(pos_1, vert_1, min_max_1, elem) for elem in list_bricks]
 
@@ -88,7 +83,7 @@ def fun_validate_origin_outer(brick_):
         raise ValueError('Brick is located under an origin surface.')
 
 
-class Bricks(object):
+class Bricks:
     def __init__(self, max_bricks):
         self.max_bricks = max_bricks
         self.bricks = []
@@ -313,7 +308,7 @@ class Bricks(object):
         while len(possible_bricks) <= num_samples:
             brick_sampled = self.sample_one()
 
-            if brick_sampled is not None and check_duplicate(possible_bricks, brick_sampled):
+            if brick_sampled is not None and utils_validation.check_duplicate(possible_bricks, brick_sampled):
                 possible_bricks.append(brick_sampled)
 
         return possible_bricks
@@ -336,10 +331,10 @@ class Bricks(object):
                 pos_2 = brick_2.get_position()
                 vert_1 = brick_1.get_vertices()
                 vert_2 = brick_2.get_vertices()
-                min_max_1 = utils.get_min_max_3d(vert_1)
-                min_max_2 = utils.get_min_max_3d(vert_2)
+                min_max_1 = utils_validation.get_min_max_3d(vert_1)
+                min_max_2 = utils_validation.get_min_max_3d(vert_2)
 
-                if np.abs(pos_1[2] - pos_2[2]) == 1 and utils.check_overlap_2d(min_max_1[:2], min_max_2[:2]) == 1:
+                if np.abs(pos_1[2] - pos_2[2]) == 1 and utils_validation.check_overlap_2d(min_max_1[:2], min_max_2[:2]) == 1:
                     A[ind_1, ind_2] = 1
                     conn = get_connection_type(bricks_[ind_1], bricks_[ind_2])
                     connection_type.append(conn)

@@ -16,9 +16,13 @@ def test_load_voxels():
     import geometric_primitives.voxels
     from geometric_primitives import voxels
 
-def test_load_utils():
-    import geometric_primitives.utils
-    from geometric_primitives import utils
+def test_load_utils_validation():
+    import geometric_primitives.utils_validation
+    from geometric_primitives import utils_validation
+
+def test_load_utils_bricks():
+    import geometric_primitives.utils_bricks
+    from geometric_primitives import utils_bricks
 
 def test_load_rules():
     import geometric_primitives.rules
