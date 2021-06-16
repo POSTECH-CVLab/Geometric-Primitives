@@ -90,6 +90,8 @@ class Bricks:
         self.adjacency_matrix = np.array([])
         self.degree_matrix = np.array([])
         self.connection_types = []
+        self.rules = rules.RULE_CONTACTS_2_4
+        self.probs_rules = rules.PROBS_CONTACTS_2_4
 
     def _validate_overlap(self):
         len_bricks = self.get_length()
@@ -235,7 +237,7 @@ class Bricks:
             cur_position = brick_.get_position()
             cur_direction = brick_.get_direction()
 
-            for rule in rules.RULE_CONTACTS_2_4:
+            for rule in self.rules:
                 translations = rule['translations']
                 direction = rule['direction']
                 
@@ -266,8 +268,8 @@ class Bricks:
         cur_position = brick_sampled.get_position()
         cur_direction = brick_sampled.get_direction()
 
-        ind_rule = np.random.choice(len(rules.RULE_CONTACTS_2_4), p=rules.PROBS_CONTACTS_2_4)
-        cur_rule = rules.RULE_CONTACTS_2_4[ind_rule]
+        ind_rule = np.random.choice(len(self.rules), p=self.probs_rules)
+        cur_rule = self.rules[ind_rule]
         
         translations = cur_rule['translations']
         direction = cur_rule['direction']
