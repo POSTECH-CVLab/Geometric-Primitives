@@ -16,7 +16,7 @@ bricks_ = bricks.Bricks(100, 'mixed')
 bricks_.add(brick_)
 
 for ind in range(0, 10):
-    brick_ = bricks_.sample(str_type='3')[0]
+    brick_ = bricks_.sample(str_type='2')[0]
     bricks_.add(brick_)
     print(brick_.get_position(), brick_.get_direction())
 

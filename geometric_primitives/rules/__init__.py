@@ -20,6 +20,13 @@ PROBS_CONTACTS_24_12 = rules_mixed_24_12.PROBS_CONTACTS_24_12
 RULE_CONTACTS_24_12 = rules_mixed_24_12.RULE_CONTACTS_24_12
 LIST_RULES_24_12 = rules_mixed_24_12.LIST_RULES_24_12
 
+ALL_TYPES = [
+    '0',
+    '1',
+    '2',
+    '3',
+]
+
 ALL_PROBS = [
     PROBS_CONTACTS_2_4, # 0
     PROBS_CONTACTS_2_2, # 1

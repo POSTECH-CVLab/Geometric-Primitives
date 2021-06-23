@@ -50,24 +50,39 @@ def fun_validate_contact_outer(brick_1, list_bricks):
 
     return np.sum(results)
 
-def get_rules(str_type):
-    if str_type == '0':
+def get_rules(cur_type, str_type):
+    if cur_type == '0' and str_type == '0':
         rules_ = copy.deepcopy(rules.RULE_CONTACTS_2_4)
         probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_2_4)
-    elif str_type == '1':
+        size_upper = size_lower = [2, 4]
+    elif cur_type == '1' and str_type == '1':
         rules_ = copy.deepcopy(rules.RULE_CONTACTS_2_2)
         probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_2_2)
-    elif str_type == '2':
+        size_upper = size_lower = [2, 2]
+    elif cur_type == '2' and str_type == '2':
         rules_ = copy.deepcopy(rules.RULE_CONTACTS_1_2)
         probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_1_2)
-    elif str_type == '3':
+        size_upper = size_lower = [1, 2]
+    elif cur_type == '0' and str_type == '2':
         rules_ = copy.deepcopy(rules.RULE_CONTACTS_24_12)
         probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_24_12)
+        size_upper = size_lower = [1, 2]
     else:
         raise ValueError('Invalid str_type.')
 
-    return rules_, probs_rules_
+    return rules_, probs_rules_, size_upper, size_lower
 
+def get_cur_type(brick_):
+    if list(brick_.size_upper) == list(brick_.size_lower) == [2, 4]:
+        cur_type = '0'
+    elif list(brick_.size_upper) == list(brick_.size_lower) == [2, 2]:
+        cur_type = '1'
+    elif list(brick_.size_upper) == list(brick_.size_lower) == [1, 2]:
+        cur_type = '2'
+    else:
+        raise ValueError('Invalid str_type.')
+
+    return cur_type
 
 class Bricks:
     def __init__(self, max_bricks, str_type):
@@ -225,15 +240,17 @@ class Bricks:
         bricks = self.get_bricks()
         new_bricks = []
 
-        if self.str_type == 'mixed' and str_type is None:
-            ind_rules = np.random.choice(len(rules.ALL_RULES))
-            rules_ = copy.deepcopy(rules.ALL_RULES[ind_rules])
-        elif self.str_type == 'mixed' and str_type is not None:
-            rules_, _ = get_rules(str_type)
-        else:
-            rules_, _ = get_rules(self.str_type)
-
         for brick_ in bricks:
+            cur_type = get_cur_type(copy.deepcopy(brick_))
+
+            if self.str_type == 'mixed' and str_type is None:
+                ind_rules = np.random.choice(len(rules.ALL_RULES))
+                rules_ = copy.deepcopy(rules.ALL_RULES[ind_rules])
+            elif self.str_type == 'mixed' and str_type is not None:
+                rules_, _, _, _ = get_rules(cur_type, str_type)
+            else:
+                rules_, _, _, _ = get_rules(cur_type, self.str_type)
+
             cur_position = brick_.get_position()
             cur_direction = brick_.get_direction()
 
@@ -265,17 +282,20 @@ class Bricks:
         ind_brick = np.random.choice(self.get_length())
         brick_sampled = list_bricks[ind_brick]
 
+        cur_type = get_cur_type(copy.deepcopy(brick_sampled))
+
         cur_position = brick_sampled.get_position()
         cur_direction = brick_sampled.get_direction()
 
         if self.str_type == 'mixed' and str_type is None:
             ind_rules = np.random.choice(len(rules.ALL_RULES))
-            rules_ = copy.deepcopy(rules.ALL_RULES[ind_rules])
-            probs_rules_ = copy.deepcopy(rules.ALL_PROBS[ind_rules])
+            str_type = rules.ALL_TYPES[ind_rules]
+
+            rules_, probs_rules_, size_upper, size_lower = get_rules(cur_type, str_type)
         elif self.str_type == 'mixed' and str_type is not None:
-            rules_, probs_rules_ = get_rules(str_type)
+            rules_, probs_rules_, size_upper, size_lower = get_rules(cur_type, str_type)
         else:
-            rules_, probs_rules_ = get_rules(self.str_type)
+            rules_, probs_rules_, size_upper, size_lower = get_rules(cur_type, self.str_type)
 
         ind_rule = np.random.choice(len(rules_), p=probs_rules_)
         cur_rule = rules_[ind_rule]
@@ -298,14 +318,14 @@ class Bricks:
 
         if True:
             # upper
-            new_brick = copy.deepcopy(brick_sampled)
+            new_brick = brick.Brick(size_upper=size_upper, size_lower=size_lower)
             new_brick.set_position(cur_position + np.concatenate((np.array(trans), [new_brick.height])))
             new_brick.set_direction((cur_direction + direction) % 2)
             if new_brick.get_position()[2] >= 0:
                 new_bricks.append(new_brick)
 
             # lower
-            new_brick = copy.deepcopy(brick_sampled)
+            new_brick = brick.Brick(size_upper=size_upper, size_lower=size_lower)
             new_brick.set_position(cur_position + np.concatenate((np.array(trans), [-1 * new_brick.height])))
             new_brick.set_direction((cur_direction + direction) % 2)
             if new_brick.get_position()[2] >= 0:
