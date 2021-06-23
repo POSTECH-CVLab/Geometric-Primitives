@@ -24,6 +24,14 @@ def test_load_utils_bricks():
     import geometric_primitives.utils_bricks
     from geometric_primitives import utils_bricks
 
+def test_load_utils_meshes():
+    import geometric_primitives.utils_meshes
+    from geometric_primitives import utils_meshes
+
+def test_load_utils_io():
+    import geometric_primitives.utils_io
+    from geometric_primitives import utils_io
+
 def test_load_rules():
     import geometric_primitives.rules
     from geometric_primitives import rules

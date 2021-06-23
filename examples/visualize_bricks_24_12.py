@@ -8,17 +8,17 @@ from geometric_primitives import utils_io
 from geometric_primitives import utils_meshes
 
 
-brick_ = brick.Brick(size_upper=[1, 2], size_lower=[1, 2])
+brick_ = brick.Brick()
 brick_.set_position([0, 0, 0])
 brick_.set_direction(0)
 
-bricks_ = bricks.Bricks(100, '2')
+bricks_ = bricks.Bricks(100, 'mixed')
 bricks_.add(brick_)
 
 for ind in range(0, 10):
-    brick_ = bricks_.sample()[0]
+    brick_ = bricks_.sample(str_type='3')[0]
     bricks_.add(brick_)
     print(brick_.get_position(), brick_.get_direction())
 
-    mesh_bricks, mesh_cubes = utils_meshes.get_mesh_bricks(bricks_, '1_2')
+    mesh_bricks, mesh_cubes = utils_meshes.get_mesh_bricks(bricks_, '2_4')
     utils_io.visualize(mesh_bricks)

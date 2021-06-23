@@ -12,7 +12,7 @@ brick_ = brick.Brick(size_upper=[2, 2], size_lower=[2, 2])
 brick_.set_position([0, 0, 0])
 brick_.set_direction(0)
 
-bricks_ = bricks.Bricks(100, '2_2')
+bricks_ = bricks.Bricks(100, '1')
 bricks_.add(brick_)
 
 for ind in range(0, 10):

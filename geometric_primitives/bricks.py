@@ -6,33 +6,6 @@ from geometric_primitives import rules
 from geometric_primitives import utils_validation
 
 
-
-def get_connection_type(brick_1, brick_2):
-    # brick_1 is a yardstick.
-    list_rules = rules.LIST_RULES_2_4
-
-    diff_direction = (brick_2.get_direction() + brick_1.get_direction()) % 2
-    diff_position = (brick_2.get_position() - brick_1.get_position())[:2]
-
-    if brick_1.get_direction() == 1:
-        diff_position = [diff_position[1], diff_position[0]]
-        diff_position = np.array(diff_position)
-
-    ind = None
-    num_ind = 0
-    for rule in list_rules:
-        if diff_direction == rule[1][0] and np.all(diff_position == np.array(rule[1][1])):
-            ind = rule[0]
-            num_ind += 1
-
-    if not num_ind == 1:
-        print(num_ind)
-        print(diff_direction)
-        print(diff_position)
-        raise ValueError('Invalid connection type.')
-
-    return ind
-
 def _fun_validate_overlap(min_max_1, brick_2):
     vert_2 = brick_2.get_vertices()
     min_max_2 = utils_validation.get_min_max_3d(vert_2)
@@ -77,10 +50,23 @@ def fun_validate_contact_outer(brick_1, list_bricks):
 
     return np.sum(results)
 
-def fun_validate_origin_outer(brick_):
-    pos = brick_.get_position()
-    if pos[2] < 0:
-        raise ValueError('Brick is located under an origin surface.')
+def get_rules(str_type):
+    if str_type == '0':
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_2_4)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_2_4)
+    elif str_type == '1':
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_2_2)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_2_2)
+    elif str_type == '2':
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_1_2)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_1_2)
+    elif str_type == '3':
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_24_12)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_24_12)
+    else:
+        raise ValueError('Invalid str_type.')
+
+    return rules_, probs_rules_
 
 
 class Bricks:
@@ -90,19 +76,9 @@ class Bricks:
         self.bricks = []
         self.adjacency_matrix = np.array([])
         self.degree_matrix = np.array([])
-        self.connection_types = []
+        self.edge_matrix = np.array([])
 
-        if str_type == '2_4':
-            self.rules = rules.RULE_CONTACTS_2_4
-            self.probs_rules = rules.PROBS_CONTACTS_2_4
-        elif str_type == '2_2':
-            self.rules = rules.RULE_CONTACTS_2_2
-            self.probs_rules = rules.PROBS_CONTACTS_2_2
-        elif str_type == '1_2':
-            self.rules = rules.RULE_CONTACTS_1_2
-            self.probs_rules = rules.PROBS_CONTACTS_1_2
-        else:
-            raise ValueError('Invalid rule.')
+        self.str_type = str_type
 
     def _validate_overlap(self):
         len_bricks = self.get_length()
@@ -153,10 +129,15 @@ class Bricks:
                 raise ValueError('Do not have a contact.')
             '''
 
+    def _validate_origin_brick(self, brick_):
+        pos = brick_.get_position()
+        if pos[2] < 0:
+            raise ValueError('Brick is located under an origin surface.')
+
     def _validate_origin(self):
         bricks_ = self.get_bricks()
         for brick_ in bricks_:
-            fun_validate_origin_outer(brick_)
+            self._validate_origin_brick(brick_)
 
     def _validate_length(self):
         if self.get_length() > self.max_bricks:
@@ -171,7 +152,7 @@ class Bricks:
     def validate_brick(self, brick_):
         fun_validate_overlap_outer(brick_, self.get_bricks())
         fun_validate_contact_outer(brick_, self.get_bricks())
-        fun_validate_origin_outer(brick_)
+        self._validate_origin_brick(brick_)
 
     def add(self, brick_,
         compute_adjacency_matrix=False,
@@ -195,8 +176,8 @@ class Bricks:
     def get_length(self):
         return len(self.bricks)
 
-    def get_connection_types(self):
-        return self.connection_types
+    def get_edge_matrix(self):
+        return self.edge_matrix
 
     def get_adjacency_matrix(self):
         return self.adjacency_matrix
@@ -240,15 +221,23 @@ class Bricks:
 
         return bricks_validated
 
-    def get_possible_contacts(self):
+    def get_possible_contacts(self, str_type=None):
         bricks = self.get_bricks()
         new_bricks = []
+
+        if self.str_type == 'mixed' and str_type is None:
+            ind_rules = np.random.choice(len(rules.ALL_RULES))
+            rules_ = copy.deepcopy(rules.ALL_RULES[ind_rules])
+        elif self.str_type == 'mixed' and str_type is not None:
+            rules_, _ = get_rules(str_type)
+        else:
+            rules_, _ = get_rules(self.str_type)
 
         for brick_ in bricks:
             cur_position = brick_.get_position()
             cur_direction = brick_.get_direction()
 
-            for rule in self.rules:
+            for rule in rules_:
                 translations = rule['translations']
                 direction = rule['direction']
                 
@@ -271,7 +260,7 @@ class Bricks:
         
         return new_bricks
 
-    def sample_one(self):
+    def sample_one(self, str_type=None):
         list_bricks = self.get_bricks()
         ind_brick = np.random.choice(self.get_length())
         brick_sampled = list_bricks[ind_brick]
@@ -279,9 +268,18 @@ class Bricks:
         cur_position = brick_sampled.get_position()
         cur_direction = brick_sampled.get_direction()
 
-        ind_rule = np.random.choice(len(self.rules), p=self.probs_rules)
-        cur_rule = self.rules[ind_rule]
-        
+        if self.str_type == 'mixed' and str_type is None:
+            ind_rules = np.random.choice(len(rules.ALL_RULES))
+            rules_ = copy.deepcopy(rules.ALL_RULES[ind_rules])
+            probs_rules_ = copy.deepcopy(rules.ALL_PROBS[ind_rules])
+        elif self.str_type == 'mixed' and str_type is not None:
+            rules_, probs_rules_ = get_rules(str_type)
+        else:
+            rules_, probs_rules_ = get_rules(self.str_type)
+
+        ind_rule = np.random.choice(len(rules_), p=probs_rules_)
+        cur_rule = rules_[ind_rule]
+
         translations = copy.deepcopy(cur_rule['translations'])
         direction = copy.deepcopy(cur_rule['direction'])
 
@@ -299,7 +297,6 @@ class Bricks:
         new_bricks = []
 
         if True:
-#        for trans in translations:
             # upper
             new_brick = copy.deepcopy(brick_sampled)
             new_brick.set_position(cur_position + np.concatenate((np.array(trans), [new_brick.height])))
@@ -321,18 +318,51 @@ class Bricks:
         else:
             return np.random.choice(new_bricks)
 
-    def sample(self, num_samples=None):
+    def sample(self, num_samples=None, str_type=None):
         if num_samples is None:
             num_samples = 1
 
         possible_bricks = []
         while len(possible_bricks) <= num_samples:
-            brick_sampled = self.sample_one()
+            brick_sampled = self.sample_one(str_type=str_type)
 
             if brick_sampled is not None and utils_validation.check_duplicate(possible_bricks, brick_sampled):
                 possible_bricks.append(brick_sampled)
 
         return possible_bricks
+
+    def get_connection_type(self, brick_1, brick_2):
+        # brick_1 is a yardstick.
+        diff_direction = (brick_2.get_direction() + brick_1.get_direction()) % 2
+        diff_position = (brick_2.get_position() - brick_1.get_position())[:2]
+
+        if brick_1.get_direction() == 1:
+            diff_position = [diff_position[1], diff_position[0]]
+            diff_position = np.array(diff_position)
+
+        if list(brick_1.size_upper) == list(brick_1.size_lower) == [2, 4] and list(brick_2.size_upper) == list(brick_2.size_lower) == [2, 4]:
+            list_rules = rules.LIST_RULES_2_4
+        elif list(brick_1.size_upper) == list(brick_1.size_lower) == [2, 2] and list(brick_2.size_upper) == list(brick_2.size_lower) == [2, 2]:
+            list_rules = rules.LIST_RULES_2_2
+        elif list(brick_1.size_upper) == list(brick_1.size_lower) == [1, 2] and list(brick_2.size_upper) == list(brick_2.size_lower) == [1, 2]:
+            list_rules = rules.LIST_RULES_1_2
+        elif list(brick_1.size_upper) == list(brick_1.size_lower) == [2, 4] and list(brick_2.size_upper) == list(brick_2.size_lower) == [1, 2]:
+            list_rules = rules.LIST_RULES_1_2
+        else:
+            raise NotImplementedError('')
+
+        ind = None
+        num_ind = 0
+        for rule in list_rules:
+            if diff_direction == rule[1][0] and np.all(diff_position == np.array(rule[1][1])):
+                ind = rule[0]
+                num_ind += 1
+
+        if not num_ind == 1:
+            print(num_ind, diff_direction, diff_position)
+            raise ValueError('Invalid connection type.')
+
+        return ind
 
     def compute_adjacency_degree_matrices(self):
         bricks_ = self.get_bricks()
@@ -357,7 +387,7 @@ class Bricks:
 
                 if np.abs(pos_1[2] - pos_2[2]) == 1 and utils_validation.check_overlap_2d(min_max_1[:2], min_max_2[:2]) == 1:
                     A[ind_1, ind_2] = 1
-                    conn = get_connection_type(bricks_[ind_1], bricks_[ind_2])
+                    conn = self.get_connection_type(bricks_[ind_1], bricks_[ind_2])
                     connection_type.append(conn)
                     D[ind_1, ind_1] += 1
 
@@ -365,8 +395,9 @@ class Bricks:
 
         self.adjacency_matrix = A
         self.degree_matrix = D
-        self.connection_types = connection_types
-        if not len(self.get_connection_types()) == self.get_length():
+        self.edge_matrix = connection_types
+
+        if not len(self.get_edge_matrix()) == self.get_length():
             raise ValueError('Lengths are different.')
 
         return
@@ -376,6 +407,7 @@ class Bricks:
 
         X = self.get_positions()
         A = self.get_adjacency_matrix()
+        E = self.get_edge_matrix()
         D = self.get_degree_matrix()
 
-        return X, A, D
+        return X, A, E, D
