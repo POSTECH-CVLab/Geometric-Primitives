@@ -10,6 +10,32 @@ str_2_4 = '3001.stl'
 str_2_2 = '3003.stl'
 str_1_2 = '3004.stl'
 
+path_brick_0 = os.path.join(path_unit_primitives, str_2_4)
+path_brick_1 = os.path.join(path_unit_primitives, str_2_2)
+path_brick_2 = os.path.join(path_unit_primitives, str_1_2)
+
+mesh_bricks_unit = [
+    o3d.io.read_triangle_mesh(path_brick_0),
+    o3d.io.read_triangle_mesh(path_brick_1),
+    o3d.io.read_triangle_mesh(path_brick_2),
+]
+
+dividers_1 = [
+    2,
+    2,
+    1,
+]
+dividers_2 = [
+    4,
+    2,
+    2,
+]
+subtractors_3 = [
+    0.085,
+    0.126,
+    0.151,
+]
+
 
 def preprocess(model, color):
     min_bound = model.get_min_bound()
@@ -80,49 +106,36 @@ def get_voxel(color):
 
     return mesh_cube
 
-def get_mesh_bricks(bricks_, str_type):
-    if str_type == '2_4':
-        path_brick = os.path.join(path_unit_primitives, str_2_4)
-        divider_1 = 2
-        divider_2 = 4
-        subtractor_3 = 0.085
-    elif str_type == '2_2':
-        path_brick = os.path.join(path_unit_primitives, str_2_2)
-        divider_1 = 2
-        divider_2 = 2
-        subtractor_3 = 0.126
-    elif str_type == '1_2':
-        path_brick = os.path.join(path_unit_primitives, str_1_2)
-        divider_1 = 1
-        divider_2 = 2
-        subtractor_3 = 0.151
+def choose_mesh_brick(brick_):
+    if list(brick_.size_upper) == list(brick_.size_lower) == [2, 4]:
+        mesh_brick = mesh_bricks_unit[0]
+    elif list(brick_.size_upper) == list(brick_.size_lower) == [2, 2]:
+        mesh_brick = mesh_bricks_unit[1]
+    elif list(brick_.size_upper) == list(brick_.size_lower) == [1, 2]:
+        mesh_brick = mesh_bricks_unit[2]
     else:
-        raise ValueError('')
+        raise NotImplementedError('')
 
-    len_bricks = bricks_.get_length()
+    return mesh_brick
+
+def get_mesh_bricks(bricks_):
     mesh_bricks = []
     mesh_cubes = []
 
-    for ind_bricks in range(1, len_bricks + 1):
-        color = np.random.RandomState(43 * ind_bricks).rand(3)
-
-        mesh_brick = o3d.io.read_triangle_mesh(path_brick)
+    for ind_brick, brick_ in enumerate(bricks_.get_bricks()):
+        color = np.random.RandomState(43 * ind_brick).rand(3)
+        mesh_brick = choose_mesh_brick(brick_)
         mesh_brick = preprocess(mesh_brick, color)
-        mesh_bricks.append(mesh_brick)
-
         mesh_cube = get_cube(color)
-        mesh_cubes.append(mesh_cube)
 
-    mesh_brick = mesh_bricks[0]
-    bound_min = mesh_brick.get_min_bound()
-    bound_max = mesh_brick.get_max_bound()
-    unit_axis_1 = (bound_max[0] - bound_min[0]) / divider_1
-    unit_axis_2 = (bound_max[1] - bound_min[1]) / divider_2
-    unit_axis_3 = (bound_max[2] - bound_min[2]) - subtractor_3
+        bound_min = mesh_brick.get_min_bound()
+        bound_max = mesh_brick.get_max_bound()
+        unit_axis_1 = (bound_max[0] - bound_min[0]) / divider_1
+        unit_axis_2 = (bound_max[1] - bound_min[1]) / divider_2
+        unit_axis_3 = (bound_max[2] - bound_min[2]) - subtractor_3
 
-    for brick, mesh_brick, mesh_cube in zip(bricks_.get_bricks(), mesh_bricks, mesh_cubes):
-        pos = brick.get_position()
-        direc = brick.get_direction()
+        pos = brick_.get_position()
+        direc = brick_.get_direction()
         mesh_brick.translate(np.array([
             [unit_axis_1 * pos[0]], 
             [unit_axis_2 * pos[1]], 
@@ -137,6 +150,9 @@ def get_mesh_bricks(bricks_, str_type):
         ]))
 
         mesh_cube.rotate(mesh_cube.get_rotation_matrix_from_xyz((0.0, 0.0, np.pi / 2.0 * direc)))
+
+        mesh_bricks.append(mesh_brick)
+        mesh_cubes.append(mesh_cube)
 
     return mesh_bricks, mesh_cubes
 

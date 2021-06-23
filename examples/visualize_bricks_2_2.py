@@ -20,5 +20,5 @@ for ind in range(0, 10):
     bricks_.add(brick_)
     print(brick_.get_position(), brick_.get_direction())
 
-    mesh_bricks, mesh_cubes = utils_meshes.get_mesh_bricks(bricks_, '2_2')
+    mesh_bricks, mesh_cubes = utils_meshes.get_mesh_bricks(bricks_)
     utils_io.visualize(mesh_bricks)
