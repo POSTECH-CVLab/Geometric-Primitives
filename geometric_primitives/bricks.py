@@ -7,6 +7,7 @@ from geometric_primitives import utils_validation
 
 
 def get_rules(cur_type, str_type):
+    print(cur_type, str_type)
     if cur_type == '0' and str_type == '0':
         rules_ = copy.deepcopy(rules.RULE_CONTACTS_2_4)
         probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_2_4)
@@ -59,6 +60,7 @@ def get_cur_type(brick_):
         raise ValueError('Invalid str_type.')
 
     return cur_type
+
 
 class Bricks:
     def __init__(self, max_bricks, str_type):
@@ -239,9 +241,9 @@ class Bricks:
                 ind_rules = np.random.choice(len(rules.ALL_RULES))
                 rules_ = copy.deepcopy(rules.ALL_RULES[ind_rules])
             elif self.str_type == 'mixed' and str_type is not None:
-                rules_, _, _, _ = get_rules(cur_type, str_type)
+                rules_, _, size_upper, size_lower = get_rules(cur_type, str_type)
             else:
-                rules_, _, _, _ = get_rules(cur_type, self.str_type)
+                rules_, _, size_upper, size_lower = get_rules(cur_type, self.str_type)
 
             cur_position = brick_.get_position()
             cur_direction = brick_.get_direction()
@@ -252,14 +254,14 @@ class Bricks:
                 
                 for trans in translations:
                     # upper
-                    new_brick = copy.deepcopy(brick_)
+                    new_brick = brick.Brick(size_upper=size_upper, size_lower=size_lower)
                     new_brick.set_position(cur_position + np.concatenate((np.array(trans), [new_brick.height])))
                     new_brick.set_direction((cur_direction + direction) % 2)
                     if new_brick.get_position()[2] >= 0:
                         new_bricks.append(new_brick)
 
                     # lower
-                    new_brick = copy.deepcopy(brick_)
+                    new_brick = brick.Brick(size_upper=size_upper, size_lower=size_lower)
                     new_brick.set_position(cur_position + np.concatenate((np.array(trans), [-1 * new_brick.height])))
                     new_brick.set_direction((cur_direction + direction) % 2)
                     if new_brick.get_position()[2] >= 0:
@@ -297,7 +299,6 @@ class Bricks:
 
         ind_trans = np.random.choice(len(translations))
         trans = translations[ind_trans]
-        print(direction, trans)
 
         if cur_direction == 1:
             angle = np.pi * 3.0 / 2.0
@@ -311,8 +312,6 @@ class Bricks:
         new_brick = brick.Brick(size_upper=size_upper, size_lower=size_lower)
         new_brick.set_position(cur_position + np.concatenate((np.array(trans), [new_brick.height * upper_lower])))
         new_brick.set_direction((cur_direction + direction) % 2)
-        if new_brick.get_position()[2] >= 0:
-            new_bricks.append(new_brick)
 
         new_brick = self._validate_bricks([new_brick])
 

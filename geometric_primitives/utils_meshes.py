@@ -139,7 +139,11 @@ def get_mesh_bricks(bricks_):
         mesh_brick, divider_1, divider_2, subtractor_3 = choose_brick_info(brick_)
         mesh_brick = preprocess(mesh_brick, color)
 
-        if ind == 2:
+        if ind == 1:
+            vertices = np.asarray(mesh_brick.vertices)
+            vertices += np.matlib.repmat([0.0, 2.8, 2.8], len(mesh_brick.vertices), 1)
+            mesh_brick.vertices = o3d.utility.Vector3dVector(vertices)
+        elif ind == 2:
             vertices = np.asarray(mesh_brick.vertices)
             vertices += np.matlib.repmat([0.0, 2.1, 2.1], len(mesh_brick.vertices), 1)
             mesh_brick.vertices = o3d.utility.Vector3dVector(vertices)
