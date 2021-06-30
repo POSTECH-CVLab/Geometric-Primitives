@@ -19,10 +19,30 @@ def get_rules(cur_type, str_type):
         rules_ = copy.deepcopy(rules.RULE_CONTACTS_1_2)
         probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_1_2)
         size_upper = size_lower = [1, 2]
+    elif cur_type == '0' and str_type == '1':
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_24_22)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_24_22)
+        size_upper = size_lower = [2, 2]
     elif cur_type == '0' and str_type == '2':
         rules_ = copy.deepcopy(rules.RULE_CONTACTS_24_12)
         probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_24_12)
         size_upper = size_lower = [1, 2]
+    elif cur_type == '1' and str_type == '0':
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_22_24)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_22_24)
+        size_upper = size_lower = [2, 4]
+    elif cur_type == '1' and str_type == '2':
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_22_12)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_22_12)
+        size_upper = size_lower = [1, 2]
+    elif cur_type == '2' and str_type == '0':
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_12_24)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_12_24)
+        size_upper = size_lower = [2, 4]
+    elif cur_type == '2' and str_type == '1':
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_12_22)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_12_22)
+        size_upper = size_lower = [2, 2]
     else:
         raise ValueError('Invalid str_type.')
 
@@ -333,8 +353,18 @@ class Bricks:
             list_rules = rules.LIST_RULES_2_2
         elif list(brick_1.size_upper) == list(brick_1.size_lower) == [1, 2] and list(brick_2.size_upper) == list(brick_2.size_lower) == [1, 2]:
             list_rules = rules.LIST_RULES_1_2
+        elif list(brick_1.size_upper) == list(brick_1.size_lower) == [2, 4] and list(brick_2.size_upper) == list(brick_2.size_lower) == [2, 2]:
+            list_rules = rules.LIST_RULES_24_22
         elif list(brick_1.size_upper) == list(brick_1.size_lower) == [2, 4] and list(brick_2.size_upper) == list(brick_2.size_lower) == [1, 2]:
-            list_rules = rules.LIST_RULES_1_2
+            list_rules = rules.LIST_RULES_24_12
+        elif list(brick_1.size_upper) == list(brick_1.size_lower) == [2, 2] and list(brick_2.size_upper) == list(brick_2.size_lower) == [2, 4]:
+            list_rules = rules.LIST_RULES_22_24
+        elif list(brick_1.size_upper) == list(brick_1.size_lower) == [2, 2] and list(brick_2.size_upper) == list(brick_2.size_lower) == [1, 2]:
+            list_rules = rules.LIST_RULES_22_12
+        elif list(brick_1.size_upper) == list(brick_1.size_lower) == [1, 2] and list(brick_2.size_upper) == list(brick_2.size_lower) == [2, 4]:
+            list_rules = rules.LIST_RULES_12_24
+        elif list(brick_1.size_upper) == list(brick_1.size_lower) == [1, 2] and list(brick_2.size_upper) == list(brick_2.size_lower) == [2, 2]:
+            list_rules = rules.LIST_RULES_12_22
         else:
             raise NotImplementedError('')
 
