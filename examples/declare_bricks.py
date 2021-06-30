@@ -65,4 +65,4 @@ for ind in range(0, 4):
     list_bricks = new_list_bricks
     print(num_bricks)
     time_end = time.time()
-    print('time consumed: ', time_end - time_start, 'sec.')
+    print('time consumed: {:.5f} sec.'.format(time_end - time_start))

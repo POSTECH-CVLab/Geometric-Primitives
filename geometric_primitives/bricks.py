@@ -129,28 +129,6 @@ class Bricks:
         if int(np.sum(results)) == 0:
             raise ValueError('Do not have a contact.')
 
-    def _check_reachability(self):
-        len_bricks = self.get_length()
-        reached = np.zeros(len_bricks)
-
-        A = self.get_adjacency_matrix()
-        D = self.get_degree_matrix()
-
-        for ind_1 in range(0, len_bricks):
-            for ind_2 in range(0, len_bricks):
-                if ind_1 > ind_2:
-                    A[ind_1, ind_2] = 0
-
-        def check_contacts(ind_):
-            for ind_elem, elem in enumerate(A[ind_]):
-                if elem == 1:
-                    reached[ind_elem] = 1
-                    check_contacts(ind_elem)
-
-        check_contacts(0)
-        reached[0] = 1
-        return reached
-
     def _validate_origin_brick(self, brick_):
         pos = brick_.get_position()
         if pos[2] < 0:
@@ -167,10 +145,23 @@ class Bricks:
         len_bricks = self.get_length()
         list_bricks = self.get_bricks()
 
-        if len_bricks == 1:
+        if len_bricks <= 1:
             return
         else:
-            reached = self._check_reachability()
+            reached = np.zeros(len_bricks)
+
+            A = self.get_adjacency_matrix()
+            A = np.triu(A)
+
+            def check_contacts(ind_):
+                for ind_elem, elem in enumerate(A[ind_]):
+                    if elem == 1:
+                        reached[ind_elem] = 1
+                        check_contacts(ind_elem)
+
+            check_contacts(0)
+            reached[0] = 1
+
             if not np.sum(reached) == len_bricks:
                 raise ValueError('Do not have a contact.')
 
@@ -188,6 +179,19 @@ class Bricks:
         self._validate_contact_brick(brick_)
         self._validate_origin_brick(brick_)
 
+    def _validate_bricks(self, bricks_):
+        bricks_validated = []
+        for brick_ in bricks_:
+            cur_bricks = copy.deepcopy(self)
+
+            try:
+                cur_bricks.add(brick_)
+                bricks_validated.append(brick_)
+            except Exception as e:
+                pass
+
+        return bricks_validated
+
     def validate_all(self):
         self._validate_overlap()
         self._validate_contact()
@@ -204,24 +208,11 @@ class Bricks:
         else:
             raise ValueError('Exceed the maximum number of bricks.')
 
-    def _validate_bricks(self, bricks_):
-        bricks_validated = []
-        for brick_ in bricks_:
-            cur_bricks = copy.deepcopy(self)
-
-            try:
-                cur_bricks.add(brick_)
-                bricks_validated.append(brick_)
-            except Exception as e:
-                pass
-
-        return bricks_validated
-
     def get_possible_contacts(self, str_type=None):
-        bricks = self.get_bricks()
+        list_bricks = self.get_bricks()
         new_bricks = []
 
-        for brick_ in bricks:
+        for brick_ in list_bricks:
             cur_type = get_cur_type(copy.deepcopy(brick_))
 
             if self.str_type == 'mixed' and str_type is None:
@@ -258,7 +249,7 @@ class Bricks:
         
         return new_bricks
 
-    def sample_one(self, str_type=None):
+    def _sample_one(self, str_type=None):
         list_bricks = self.get_bricks()
         ind_brick = np.random.choice(self.get_length())
         brick_sampled = list_bricks[ind_brick]
@@ -295,29 +286,20 @@ class Bricks:
                     [np.sin(angle), np.cos(angle)],
                 ]), trans)
 
-        new_bricks = []
+        upper_lower = np.random.choice(2) * 2.0 - 1.0
 
-        if True:
-            # upper
-            new_brick = brick.Brick(size_upper=size_upper, size_lower=size_lower)
-            new_brick.set_position(cur_position + np.concatenate((np.array(trans), [new_brick.height])))
-            new_brick.set_direction((cur_direction + direction) % 2)
-            if new_brick.get_position()[2] >= 0:
-                new_bricks.append(new_brick)
+        new_brick = brick.Brick(size_upper=size_upper, size_lower=size_lower)
+        new_brick.set_position(cur_position + np.concatenate((np.array(trans), [new_brick.height * upper_lower])))
+        new_brick.set_direction((cur_direction + direction) % 2)
+        if new_brick.get_position()[2] >= 0:
+            new_bricks.append(new_brick)
 
-            # lower
-            new_brick = brick.Brick(size_upper=size_upper, size_lower=size_lower)
-            new_brick.set_position(cur_position + np.concatenate((np.array(trans), [-1 * new_brick.height])))
-            new_brick.set_direction((cur_direction + direction) % 2)
-            if new_brick.get_position()[2] >= 0:
-                new_bricks.append(new_brick)
+        new_brick = self._validate_bricks([new_brick])
 
-        new_bricks = self._validate_bricks(new_bricks)
-
-        if len(new_bricks) == 0:
+        if len(new_brick) == 0:
             return None
         else:
-            return np.random.choice(new_bricks)
+            return new_brick[0]
 
     def sample(self, num_samples=None, str_type=None):
         if num_samples is None:
@@ -325,7 +307,7 @@ class Bricks:
 
         possible_bricks = []
         while len(possible_bricks) <= num_samples:
-            brick_sampled = self.sample_one(str_type=str_type)
+            brick_sampled = self._sample_one(str_type=str_type)
 
             if brick_sampled is not None and utils_validation.check_duplicate(possible_bricks, brick_sampled):
                 possible_bricks.append(brick_sampled)
@@ -367,65 +349,72 @@ class Bricks:
             print(num_ind, diff_direction, diff_position)
             raise ValueError('Invalid connection type.')
 
+        assert ind > 0
         return ind
 
     def compute_node_matrix(self):
         bricks_ = self.get_bricks()
         len_bricks = self.get_length()
 
-        X = np.zeros((len_bricks, 4))
+        if len_bricks > 0:
+            X = np.zeros((len_bricks, 4))
 
-        if len_bricks > 1:
-            X[:len_bricks-1, :] = self.get_node_matrix()
+            if len_bricks > 1:
+                X[:len_bricks-1, :] = self.get_node_matrix()
 
-        cur_pos = bricks_[-1].get_position()
-        cur_dir = bricks_[-1].get_direction()
+            cur_pos = bricks_[-1].get_position()
+            cur_dir = bricks_[-1].get_direction()
 
-        X[len_bricks-1, :] = np.array([cur_pos[0], cur_pos[1], cur_pos[2], cur_dir])
+            X[len_bricks-1, :] = np.array([cur_pos[0], cur_pos[1], cur_pos[2], cur_dir])
 
-        self.node_matrix = X
+            self.node_matrix = X
 
-        return X
+            return X
+        else:
+            return self.get_node_matrix()
 
     def compute_adjacency_edge_degree_matrices(self):
         bricks_ = self.get_bricks()
         len_bricks = self.get_length()
 
-        A = np.zeros((len_bricks, len_bricks))
-        D = np.zeros((len_bricks, len_bricks))
-        E = np.zeros((len_bricks, len_bricks))
+        if len_bricks > 0:
+            A = np.zeros((len_bricks, len_bricks))
+            D = np.zeros((len_bricks, len_bricks))
+            E = np.zeros((len_bricks, len_bricks))
 
-        for ind_1, brick_1 in enumerate(bricks_):
-            for ind_2, brick_2 in enumerate(bricks_):
-                if ind_1 == ind_2:
-                    E[ind_1, ind_2] = -1
-                    continue
+            for ind_1, brick_1 in enumerate(bricks_):
+                for ind_2, brick_2 in enumerate(bricks_):
+                    if ind_1 == ind_2:
+                        E[ind_1, ind_2] = -1
+                        continue
 
-                pos_1 = brick_1.get_position()
-                pos_2 = brick_2.get_position()
-                vert_1 = brick_1.get_vertices()
-                vert_2 = brick_2.get_vertices()
-                min_max_1 = utils_validation.get_min_max_3d(vert_1)
-                min_max_2 = utils_validation.get_min_max_3d(vert_2)
+                    pos_1 = brick_1.get_position()
+                    pos_2 = brick_2.get_position()
+                    vert_1 = brick_1.get_vertices()
+                    vert_2 = brick_2.get_vertices()
+                    min_max_1 = utils_validation.get_min_max_3d(vert_1)
+                    min_max_2 = utils_validation.get_min_max_3d(vert_2)
 
-                if np.abs(pos_1[2] - pos_2[2]) == 1 and utils_validation.check_overlap_2d(min_max_1[:2], min_max_2[:2]) == 1:
-                    conn = self.get_connection_type(bricks_[ind_1], bricks_[ind_2])
+                    if np.abs(pos_1[2] - pos_2[2]) == 1 and utils_validation.check_overlap_2d(min_max_1[:2], min_max_2[:2]) == 1:
+                        conn = self.get_connection_type(bricks_[ind_1], bricks_[ind_2])
 
-                    A[ind_1, ind_2] = 1
-                    D[ind_1, ind_1] += 1
-                    E[ind_1, ind_2] = conn
-                else:
-                    E[ind_1, ind_2] = 0
+                        A[ind_1, ind_2] = 1
+                        D[ind_1, ind_1] += 1
+                        E[ind_1, ind_2] = conn
+                    else:
+                        E[ind_1, ind_2] = 0
 
-        self.adjacency_matrix = A
-        self.edge_matrix = E
-        self.degree_matrix = D
+            self.adjacency_matrix = A
+            self.edge_matrix = E
+            self.degree_matrix = D
 
-        assert np.all((E > 0) == A)
-        assert np.all(np.sum(A, axis=0) == np.sum(D, axis=0))
-        assert np.all(np.sum(A, axis=1) == np.sum(D, axis=1))
+            assert np.all((E > 0) == A)
+            assert np.all(np.sum(A, axis=0) == np.sum(D, axis=0))
+            assert np.all(np.sum(A, axis=1) == np.sum(D, axis=1))
 
-        return A, E, D
+            return A, E, D
+        else:
+            return self.get_adjacency_matrix(), self.get_edge_matrix(), self.get_degree_matrix()
 
     def get_graph(self):
         X = self.get_node_matrix()
