@@ -238,8 +238,10 @@ class Bricks:
             cur_type = get_cur_type(copy.deepcopy(brick_))
 
             if self.str_type == 'mixed' and str_type is None:
-                ind_rules = np.random.choice(len(rules.ALL_RULES))
-                rules_ = copy.deepcopy(rules.ALL_RULES[ind_rules])
+                ind_rules = np.random.choice(len(rules.ALL_TYPES))
+                str_type = rules.ALL_TYPES[ind_rules]
+
+                rules_, probs_rules_, size_upper, size_lower = get_rules(cur_type, str_type)
             elif self.str_type == 'mixed' and str_type is not None:
                 rules_, _, size_upper, size_lower = get_rules(cur_type, str_type)
             else:
@@ -282,7 +284,7 @@ class Bricks:
         cur_direction = brick_sampled.get_direction()
 
         if self.str_type == 'mixed' and str_type is None:
-            ind_rules = np.random.choice(len(rules.ALL_RULES))
+            ind_rules = np.random.choice(len(rules.ALL_TYPES))
             str_type = rules.ALL_TYPES[ind_rules]
 
             rules_, probs_rules_, size_upper, size_lower = get_rules(cur_type, str_type)

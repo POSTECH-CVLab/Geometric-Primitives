@@ -17,7 +17,7 @@ brick_.set_direction(0)
 bricks_ = bricks.Bricks(100, 'mixed')
 bricks_.add(brick_)
 
-list_bricks = bricks_.get_possible_contacts(str_type='0')
+list_bricks = bricks_.get_possible_contacts(str_type=None)
 
 for elem in list_bricks:
     bricks_copied = copy.deepcopy(bricks_)
