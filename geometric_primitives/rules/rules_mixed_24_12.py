@@ -1,10 +1,10 @@
 import numpy as np
 
 
-PROBS_CONTACTS_24_12 = np.array([4.0, 4.0, 4.0, 4.0, 6.0])
-PROBS_CONTACTS_24_12 /= np.sum(PROBS_CONTACTS_24_12)
+PROBS_CONTACTS = np.array([4.0, 4.0, 4.0, 4.0, 6.0])
+PROBS_CONTACTS /= np.sum(PROBS_CONTACTS)
 
-RULE_CONTACTS_24_12 = [
+RULE_CONTACTS = [
     # [1, 1.5] -> 4
     {
         'num_contacts': 1,
@@ -37,14 +37,14 @@ RULE_CONTACTS_24_12 = [
     },
 ]
 
-LIST_RULES_24_12 = []
+LIST_RULES = []
 ind = 1
-for rule in RULE_CONTACTS_24_12:
+for rule in RULE_CONTACTS:
     cur_direction = rule['direction']
     cur_num_contacts = rule['num_contacts']
 
     for translation in rule['translations']:
         cur_rule = [ind, [cur_direction, translation, cur_num_contacts]]
-        LIST_RULES_24_12.append(cur_rule)
+        LIST_RULES.append(cur_rule)
 
         ind += 1
