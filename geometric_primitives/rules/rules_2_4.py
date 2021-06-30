@@ -62,7 +62,7 @@ RULE_CONTACTS_2_4 = [
 ]
 
 LIST_RULES_2_4 = []
-ind = 0
+ind = 1
 for rule in RULE_CONTACTS_2_4:
     cur_direction = rule['direction']
     cur_num_contacts = rule['num_contacts']

@@ -40,8 +40,9 @@ def stack(bricks):
 
     for possible_brick in possible_bricks:
         copy_bricks = copy.deepcopy(bricks)
-        copy_bricks.add(possible_brick, compute_adjacency_matrix=False, validate_all=False)
+        copy_bricks.add(possible_brick)
 
+        copy_bricks.validate_all()
         X, A, E, D = copy_bricks.get_graph()
 
         new_bricks.append(copy_bricks)
