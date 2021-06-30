@@ -6,10 +6,10 @@ from geometric_primitives.rules import rules_mixed_24_12
 from geometric_primitives.rules import rules_mixed_24_22
 
 from geometric_primitives.rules import rules_mixed_22_24
-#from geometric_primitives.rules import rules_mixed_22_12
+from geometric_primitives.rules import rules_mixed_22_12
 
 from geometric_primitives.rules import rules_mixed_12_24
-#from geometric_primitives.rules import rules_mixed_12_22
+from geometric_primitives.rules import rules_mixed_12_22
 
 
 PROBS_CONTACTS_2_4 = rules_2_4.PROBS_CONTACTS
@@ -36,9 +36,17 @@ PROBS_CONTACTS_22_24 = rules_mixed_22_24.PROBS_CONTACTS
 RULE_CONTACTS_22_24 = rules_mixed_22_24.RULE_CONTACTS
 LIST_RULES_22_24 = rules_mixed_22_24.LIST_RULES
 
+PROBS_CONTACTS_22_12 = rules_mixed_22_12.PROBS_CONTACTS
+RULE_CONTACTS_22_12 = rules_mixed_22_12.RULE_CONTACTS
+LIST_RULES_22_12 = rules_mixed_22_12.LIST_RULES
+
 PROBS_CONTACTS_12_24 = rules_mixed_12_24.PROBS_CONTACTS
 RULE_CONTACTS_12_24 = rules_mixed_12_24.RULE_CONTACTS
 LIST_RULES_12_24 = rules_mixed_12_24.LIST_RULES
+
+PROBS_CONTACTS_12_22 = rules_mixed_12_22.PROBS_CONTACTS
+RULE_CONTACTS_12_22 = rules_mixed_12_22.RULE_CONTACTS
+LIST_RULES_12_22 = rules_mixed_12_22.LIST_RULES
 
 ALL_TYPES = [
     '0',
@@ -47,7 +55,9 @@ ALL_TYPES = [
     '3',
     '4',
     '5',
+    '6',
     '7',
+    '8',
 ]
 
 ALL_PROBS = [
@@ -57,7 +67,9 @@ ALL_PROBS = [
     PROBS_CONTACTS_24_12, # 3
     PROBS_CONTACTS_24_22, # 4
     PROBS_CONTACTS_22_24, # 5
+    PROBS_CONTACTS_22_12, # 6
     PROBS_CONTACTS_12_24, # 7
+    PROBS_CONTACTS_12_22, # 8
 ]
 ALL_RULES = [
     RULE_CONTACTS_2_4,
@@ -66,7 +78,9 @@ ALL_RULES = [
     RULE_CONTACTS_24_12,
     RULE_CONTACTS_24_22,
     RULE_CONTACTS_22_24,
+    RULE_CONTACTS_22_12,
     RULE_CONTACTS_12_24,
+    RULE_CONTACTS_12_22,
 ]
 ALL_LISTS = [
     LIST_RULES_2_4,
@@ -75,5 +89,7 @@ ALL_LISTS = [
     LIST_RULES_24_12,
     LIST_RULES_24_22,
     LIST_RULES_22_24,
+    LIST_RULES_22_12,
     LIST_RULES_12_24,
+    LIST_RULES_12_22,
 ]
