@@ -377,6 +377,7 @@ class Bricks:
                 num_ind += 1
 
         if not num_ind == 1:
+            print(brick_1.get_direction(), brick_2.get_direction())
             print(num_ind, diff_direction, diff_position)
             raise ValueError('Invalid connection type.')
 
