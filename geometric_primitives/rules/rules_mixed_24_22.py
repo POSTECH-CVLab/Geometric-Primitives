@@ -1,7 +1,7 @@
 import numpy as np
 
 
-PROBS_CONTACTS = np.array([4.0, 4.0, 2.0, 2.0, 3.0, 4.0, 4.0, 2.0, 2.0, 3.0, 4.0])
+PROBS_CONTACTS = np.array([4.0, 4.0, 2.0, 2.0, 3.0, 4.0, 4.0, 2.0, 2.0, 3.0])
 PROBS_CONTACTS /= np.sum(PROBS_CONTACTS)
 
 RULE_CONTACTS = [

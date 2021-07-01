@@ -241,7 +241,7 @@ class Bricks:
                 ind_rules = np.random.choice(len(rules.ALL_TYPES))
                 str_type = rules.ALL_TYPES[ind_rules]
 
-                rules_, probs_rules_, size_upper, size_lower = get_rules(cur_type, str_type)
+                rules_, _, size_upper, size_lower = get_rules(cur_type, str_type)
             elif self.str_type == 'mixed' and str_type is not None:
                 rules_, _, size_upper, size_lower = get_rules(cur_type, str_type)
             else:
