@@ -7,7 +7,6 @@ from geometric_primitives import utils_validation
 
 
 def get_rules(cur_type, str_type):
-    print(cur_type, str_type)
     if cur_type == '0' and str_type == '0':
         rules_ = copy.deepcopy(rules.RULE_CONTACTS_2_4)
         probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_2_4)
@@ -377,8 +376,8 @@ class Bricks:
                 num_ind += 1
 
         if not num_ind == 1:
-            print(brick_1.get_direction(), brick_2.get_direction())
-            print(num_ind, diff_direction, diff_position)
+#            print(brick_1.get_direction(), brick_2.get_direction())
+#            print(num_ind, diff_direction, diff_position)
             raise ValueError('Invalid connection type.')
 
         assert ind > 0
