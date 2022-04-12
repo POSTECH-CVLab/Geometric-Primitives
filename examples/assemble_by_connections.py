@@ -9,7 +9,7 @@ list_rules = rules.LIST_RULES_2_4
 print(list_rules)
 
 def assemble(list_conns):
-    bricks_ = bricks.Bricks(10000, '0')
+    bricks_ = bricks.Bricks(10000, 0)
 
     z = 0
     dir_cur = 0

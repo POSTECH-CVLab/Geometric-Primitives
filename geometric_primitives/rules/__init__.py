@@ -49,15 +49,9 @@ RULE_CONTACTS_12_22 = rules_mixed_12_22.RULE_CONTACTS
 LIST_RULES_12_22 = rules_mixed_12_22.LIST_RULES
 
 ALL_TYPES = [
-    '0',
-    '1',
-    '2',
-#    '1',
-#    '2',
-#    '0',
-#    '2',
-#    '0',
-#    '1',
+    0,
+    1,
+    2,
 ]
 
 '''

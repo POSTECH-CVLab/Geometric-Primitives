@@ -1,17 +1,24 @@
 import numpy as np
 
+from geometric_primitives import utils_brick
+
 
 class Brick:
     # TODO: position is on integer grid, it makes vertex coordinates to real numbers.
     def __init__(self, size_upper=[2, 4], size_lower=[2, 4], height=1):
         self.size_upper = np.array(size_upper)
         self.size_lower = np.array(size_lower)
-        self.height = 1
+        self.height = height
         self.position = None
         self.direction = 0
         self.vertices = None
 
         assert np.all(self.size_upper == self.size_lower)
+        assert height == 1
+
+        self.type = utils_brick.get_type(size_upper, size_lower, height)
+
+        assert isinstance(self.type, int)
 
     def get_size(self):
         return self.size_upper, self.size_lower, self.height
@@ -50,6 +57,9 @@ class Brick:
         self.vertices = np.array(vertices)
 
         assert len(self.vertices) == 8
+
+    def get_type(self):
+        return self.type
 
     def get_vertices(self):
         return self.vertices
