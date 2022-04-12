@@ -14,7 +14,7 @@ with open(path_requirements) as f:
 
 setup(
     name='geometric_primitives',
-    version='0.1.1',
+    version='0.1.2',
     author='Jungtaek Kim',
     author_email='jtkim@postech.ac.kr',
     url='https://github.com/POSTECH-CVLab/Geometric-Primitives',

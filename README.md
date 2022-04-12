@@ -39,12 +39,18 @@ If you would like to uninstall `geometric_primitives`, command it.
 $ pip uninstall geometric_primitives
 ```
 
+## Supported Brick Types
+* 2 x 4 brick: '0'
+* 2 x 2 brick: '1'
+* 1 x 2 brick: '2'
+
 ## Related Projects
 
 * [Combinatorial-3D-Shape-Generation](https://github.com/POSTECH-CVLab/Combinatorial-3D-Shape-Generation)
+* [Brick-by-Brick](https://github.com/POSTECH-CVLab/Brick-by-Brick)
 
 ## Contributor
-* [Jungtaek Kim](http://jungtaek.github.io) (POSTECH)
+* [Jungtaek Kim](http://jungtaek.github.io)
 
 ## Contact
 * Jungtaek Kim: [jtkim@postech.ac.kr](mailto:jtkim@postech.ac.kr)
