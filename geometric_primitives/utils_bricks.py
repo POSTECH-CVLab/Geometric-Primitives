@@ -4,6 +4,7 @@ import copy
 from geometric_primitives import brick
 from geometric_primitives import bricks
 from geometric_primitives import rules
+from geometric_primitives import utils_brick
 
 
 def align_bricks(bricks_):
@@ -83,15 +84,24 @@ def align_bricks_to_origin(bricks_):
     return bricks_aligned
 
 def convert_to_bricks(X, A):
+    num_types = np.unique(X[:, 0]).shape[0]
+
+    if num_types == 1:
+        brick_type = np.unique(X[:, 0])[0]
+    else:
+        brick_type = 'mixed'
+
     list_bricks = []
     for bx, ba in zip(X, A):
-        brick_ = brick.Brick()
-        brick_.set_position(bx[:3])
-        brick_.set_direction(bx[3])
+        size_upper, size_lower, height = utils_brick.get_size(bx[0])
+
+        brick_ = brick.Brick(size_upper, size_lower, height)
+        brick_.set_position(bx[1:4])
+        brick_.set_direction(bx[4])
 
         list_bricks.append(brick_)
 
-    bricks_ = Bricks(len(list_bricks))
+    bricks_ = Bricks(len(list_bricks), brick_type)
     bricks_.bricks = list_bricks
     try:
         bricks_.validate_all()
