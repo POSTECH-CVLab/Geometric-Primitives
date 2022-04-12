@@ -4,55 +4,14 @@ import copy
 from geometric_primitives import brick
 from geometric_primitives import rules
 from geometric_primitives import utils_brick
+from geometric_primitives import utils_bricks
 from geometric_primitives import utils_validation
 
 
-def get_rules(cur_type, next_type):
-    if cur_type == 0 and next_type == 0:
-        list_rules_ = copy.deepcopy(rules.LIST_RULES_2_4)
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_2_4)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_2_4)
-    elif cur_type == 1 and next_type == 1:
-        list_rules_ = copy.deepcopy(rules.LIST_RULES_2_2)
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_2_2)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_2_2)
-    elif cur_type == 2 and next_type == 2:
-        list_rules_ = copy.deepcopy(rules.LIST_RULES_1_2)
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_1_2)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_1_2)
-    elif cur_type == 0 and next_type == 1:
-        list_rules_ = copy.deepcopy(rules.LIST_RULES_24_22)
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_24_22)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_24_22)
-    elif cur_type == 0 and next_type == 2:
-        list_rules_ = copy.deepcopy(rules.LIST_RULES_24_12)
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_24_12)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_24_12)
-    elif cur_type == 1 and next_type == 0:
-        list_rules_ = copy.deepcopy(rules.LIST_RULES_22_24)
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_22_24)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_22_24)
-    elif cur_type == 1 and next_type == 2:
-        list_rules_ = copy.deepcopy(rules.LIST_RULES_22_12)
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_22_12)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_22_12)
-    elif cur_type == 2 and next_type == 0:
-        list_rules_ = copy.deepcopy(rules.LIST_RULES_12_24)
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_12_24)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_12_24)
-    elif cur_type == 2 and next_type == 1:
-        list_rules_ = copy.deepcopy(rules.LIST_RULES_12_22)
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_12_22)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_12_22)
-    else:
-        raise ValueError('Invalid cur_type and next_type.')
-
-    return list_rules_, rules_, probs_rules_
-
-
 class Bricks:
-    def __init__(self, max_bricks, brick_type):
+    def __init__(self, max_bricks, brick_type, debug=False):
         self.max_bricks = max_bricks
+        self.debug = debug
         self.bricks = []
 
         self.node_matrix = None
@@ -237,7 +196,7 @@ class Bricks:
             else:
                 next_type = self.brick_type
 
-            _, rules_, _ = get_rules(cur_type, next_type)
+            _, rules_, _ = utils_bricks.get_rules(cur_type, next_type)
             size_upper, size_lower, height = utils_brick.get_size(next_type)
 
             cur_position = brick_.get_position()
@@ -287,7 +246,7 @@ class Bricks:
         else:
             next_type = self.brick_type
 
-        _, rules_, probs_rules_ = get_rules(cur_type, next_type)
+        _, rules_, probs_rules_ = utils_bricks.get_rules(cur_type, next_type)
         size_upper, size_lower, height = utils_brick.get_size(next_type)
 
         ind_rule = np.random.choice(len(rules_), p=probs_rules_)
@@ -345,7 +304,7 @@ class Bricks:
                 [np.sin(angle), np.cos(angle)],
             ]), diff_position)
 
-        list_rules, _, _ = get_rules(brick_1.get_type(), brick_2.get_type())
+        list_rules, _, _ = utils_bricks.get_rules(brick_1.get_type(), brick_2.get_type())
 
         ind = None
         num_ind = 0

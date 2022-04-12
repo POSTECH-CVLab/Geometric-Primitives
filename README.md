@@ -40,9 +40,9 @@ $ pip uninstall geometric_primitives
 ```
 
 ## Supported Brick Types
-* 2 x 4 brick, which is encoded as '0' in this project
-* 2 x 2 brick, which is encoded as '1'
-* 1 x 2 brick, which is encoded as '2'
+* 2 x 4 brick, which is encoded as `0` in this project
+* 2 x 2 brick, which is encoded as `1`
+* 1 x 2 brick, which is encoded as `2`
 
 ## Related Projects
 
