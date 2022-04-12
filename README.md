@@ -1,6 +1,6 @@
 # Geometric-Primitives
 
-It defines a geometric primitive for accomplishing 3D shape generation.
+This package defines 3D geometric primitives and their related features, which support the assembly of the geometric primitives to construct a 3D object.
 
 ## Installation
 
@@ -40,9 +40,9 @@ $ pip uninstall geometric_primitives
 ```
 
 ## Supported Brick Types
-* 2 x 4 brick: '0'
-* 2 x 2 brick: '1'
-* 1 x 2 brick: '2'
+* 2 x 4 brick, which is encoded as '0' in this project
+* 2 x 2 brick, which is encoded as '1'
+* 1 x 2 brick, which is encoded as '2'
 
 ## Related Projects
 
