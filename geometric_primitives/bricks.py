@@ -3,67 +3,15 @@ import copy
 
 from geometric_primitives import brick
 from geometric_primitives import rules
+from geometric_primitives import utils_brick
+from geometric_primitives import utils_bricks
 from geometric_primitives import utils_validation
 
 
-def get_rules(cur_type, str_type):
-    if cur_type == '0' and str_type == '0':
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_2_4)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_2_4)
-        size_upper = size_lower = [2, 4]
-    elif cur_type == '1' and str_type == '1':
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_2_2)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_2_2)
-        size_upper = size_lower = [2, 2]
-    elif cur_type == '2' and str_type == '2':
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_1_2)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_1_2)
-        size_upper = size_lower = [1, 2]
-    elif cur_type == '0' and str_type == '1':
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_24_22)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_24_22)
-        size_upper = size_lower = [2, 2]
-    elif cur_type == '0' and str_type == '2':
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_24_12)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_24_12)
-        size_upper = size_lower = [1, 2]
-    elif cur_type == '1' and str_type == '0':
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_22_24)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_22_24)
-        size_upper = size_lower = [2, 4]
-    elif cur_type == '1' and str_type == '2':
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_22_12)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_22_12)
-        size_upper = size_lower = [1, 2]
-    elif cur_type == '2' and str_type == '0':
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_12_24)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_12_24)
-        size_upper = size_lower = [2, 4]
-    elif cur_type == '2' and str_type == '1':
-        rules_ = copy.deepcopy(rules.RULE_CONTACTS_12_22)
-        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_12_22)
-        size_upper = size_lower = [2, 2]
-    else:
-        raise ValueError('Invalid str_type.')
-
-    return rules_, probs_rules_, size_upper, size_lower
-
-def get_cur_type(brick_):
-    if list(brick_.size_upper) == list(brick_.size_lower) == [2, 4]:
-        cur_type = '0'
-    elif list(brick_.size_upper) == list(brick_.size_lower) == [2, 2]:
-        cur_type = '1'
-    elif list(brick_.size_upper) == list(brick_.size_lower) == [1, 2]:
-        cur_type = '2'
-    else:
-        raise ValueError('Invalid str_type.')
-
-    return cur_type
-
-
 class Bricks:
-    def __init__(self, max_bricks, str_type):
+    def __init__(self, max_bricks, brick_type, debug=False):
         self.max_bricks = max_bricks
+        self.debug = debug
         self.bricks = []
 
         self.node_matrix = None
@@ -71,7 +19,8 @@ class Bricks:
         self.edge_matrix = None
         self.degree_matrix = None
 
-        self.str_type = str_type
+        self.brick_type = brick_type
+        assert self.brick_type in ['mixed'] + copy.deepcopy(rules.ALL_TYPES)
 
     def get_bricks(self):
         return self.bricks
@@ -188,7 +137,7 @@ class Bricks:
 
     def _validate_origin(self):
         X = self.get_node_matrix()
-        if X is not None and np.any(X[:, 2] < 0):
+        if X is not None and np.any(X[:, 3] < 0):
             raise ValueError('Brick is located under an origin surface.')
 
     def _validate_length(self):
@@ -229,22 +178,26 @@ class Bricks:
         else:
             raise ValueError('Exceed the maximum number of bricks.')
 
-    def get_possible_contacts(self, str_type=None):
+    def get_possible_contacts(self, next_type=None):
+        assert isinstance(next_type, (type(None), int))
+
         list_bricks = self.get_bricks()
         new_bricks = []
 
         for brick_ in list_bricks:
-            cur_type = get_cur_type(copy.deepcopy(brick_))
+            cur_size = copy.deepcopy(brick_).get_size()
+            cur_type = utils_brick.get_type(cur_size[0], cur_size[1], cur_size[2])
 
-            if self.str_type == 'mixed' and str_type is None:
+            if self.brick_type == 'mixed' and next_type is None:
                 ind_rules = np.random.choice(len(rules.ALL_TYPES))
-                str_type = rules.ALL_TYPES[ind_rules]
-
-                rules_, _, size_upper, size_lower = get_rules(cur_type, str_type)
-            elif self.str_type == 'mixed' and str_type is not None:
-                rules_, _, size_upper, size_lower = get_rules(cur_type, str_type)
+                next_type = rules.ALL_TYPES[ind_rules]
+            elif self.brick_type == 'mixed' and next_type is not None:
+                pass
             else:
-                rules_, _, size_upper, size_lower = get_rules(cur_type, self.str_type)
+                next_type = self.brick_type
+
+            _, rules_, _ = utils_bricks.get_rules(cur_type, next_type)
+            size_upper, size_lower, height = utils_brick.get_size(next_type)
 
             cur_position = brick_.get_position()
             cur_direction = brick_.get_direction()
@@ -272,25 +225,29 @@ class Bricks:
         
         return new_bricks
 
-    def _sample_one(self, str_type=None):
+    def _sample_one(self, next_type=None):
+        assert isinstance(next_type, (type(None), int))
+
         list_bricks = self.get_bricks()
         ind_brick = np.random.choice(self.get_length())
         brick_sampled = list_bricks[ind_brick]
 
-        cur_type = get_cur_type(copy.deepcopy(brick_sampled))
+        cur_size = copy.deepcopy(brick_sampled).get_size()
+        cur_type = utils_brick.get_type(cur_size[0], cur_size[1], cur_size[2])
 
         cur_position = brick_sampled.get_position()
         cur_direction = brick_sampled.get_direction()
 
-        if self.str_type == 'mixed' and str_type is None:
+        if self.brick_type == 'mixed' and next_type is None:
             ind_rules = np.random.choice(len(rules.ALL_TYPES))
-            str_type = rules.ALL_TYPES[ind_rules]
-
-            rules_, probs_rules_, size_upper, size_lower = get_rules(cur_type, str_type)
-        elif self.str_type == 'mixed' and str_type is not None:
-            rules_, probs_rules_, size_upper, size_lower = get_rules(cur_type, str_type)
+            next_type = rules.ALL_TYPES[ind_rules]
+        elif self.brick_type == 'mixed' and next_type is not None:
+            pass
         else:
-            rules_, probs_rules_, size_upper, size_lower = get_rules(cur_type, self.str_type)
+            next_type = self.brick_type
+
+        _, rules_, probs_rules_ = utils_bricks.get_rules(cur_type, next_type)
+        size_upper, size_lower, height = utils_brick.get_size(next_type)
 
         ind_rule = np.random.choice(len(rules_), p=probs_rules_)
         cur_rule = rules_[ind_rule]
@@ -321,13 +278,13 @@ class Bricks:
         else:
             return new_brick[0]
 
-    def sample(self, num_samples=None, str_type=None):
+    def sample(self, num_samples=None, next_type=None):
         if num_samples is None:
             num_samples = 1
 
         possible_bricks = []
         while len(possible_bricks) <= num_samples:
-            brick_sampled = self._sample_one(str_type=str_type)
+            brick_sampled = self._sample_one(next_type=next_type)
 
             if brick_sampled is not None and utils_validation.check_duplicate(possible_bricks, brick_sampled):
                 possible_bricks.append(brick_sampled)
@@ -347,26 +304,7 @@ class Bricks:
                 [np.sin(angle), np.cos(angle)],
             ]), diff_position)
 
-        if list(brick_1.size_upper) == list(brick_1.size_lower) == [2, 4] and list(brick_2.size_upper) == list(brick_2.size_lower) == [2, 4]:
-            list_rules = rules.LIST_RULES_2_4
-        elif list(brick_1.size_upper) == list(brick_1.size_lower) == [2, 2] and list(brick_2.size_upper) == list(brick_2.size_lower) == [2, 2]:
-            list_rules = rules.LIST_RULES_2_2
-        elif list(brick_1.size_upper) == list(brick_1.size_lower) == [1, 2] and list(brick_2.size_upper) == list(brick_2.size_lower) == [1, 2]:
-            list_rules = rules.LIST_RULES_1_2
-        elif list(brick_1.size_upper) == list(brick_1.size_lower) == [2, 4] and list(brick_2.size_upper) == list(brick_2.size_lower) == [2, 2]:
-            list_rules = rules.LIST_RULES_24_22
-        elif list(brick_1.size_upper) == list(brick_1.size_lower) == [2, 4] and list(brick_2.size_upper) == list(brick_2.size_lower) == [1, 2]:
-            list_rules = rules.LIST_RULES_24_12
-        elif list(brick_1.size_upper) == list(brick_1.size_lower) == [2, 2] and list(brick_2.size_upper) == list(brick_2.size_lower) == [2, 4]:
-            list_rules = rules.LIST_RULES_22_24
-        elif list(brick_1.size_upper) == list(brick_1.size_lower) == [2, 2] and list(brick_2.size_upper) == list(brick_2.size_lower) == [1, 2]:
-            list_rules = rules.LIST_RULES_22_12
-        elif list(brick_1.size_upper) == list(brick_1.size_lower) == [1, 2] and list(brick_2.size_upper) == list(brick_2.size_lower) == [2, 4]:
-            list_rules = rules.LIST_RULES_12_24
-        elif list(brick_1.size_upper) == list(brick_1.size_lower) == [1, 2] and list(brick_2.size_upper) == list(brick_2.size_lower) == [2, 2]:
-            list_rules = rules.LIST_RULES_12_22
-        else:
-            raise NotImplementedError('')
+        list_rules, _, _ = utils_bricks.get_rules(brick_1.get_type(), brick_2.get_type())
 
         ind = None
         num_ind = 0
@@ -388,15 +326,16 @@ class Bricks:
         len_bricks = self.get_length()
 
         if len_bricks > 0:
-            X = np.zeros((len_bricks, 4))
+            X = np.zeros((len_bricks, 5))
 
             if len_bricks > 1:
                 X[:len_bricks-1, :] = self.get_node_matrix()
 
+            cur_type = bricks_[-1].get_type()
             cur_pos = bricks_[-1].get_position()
             cur_dir = bricks_[-1].get_direction()
 
-            X[len_bricks-1, :] = np.array([cur_pos[0], cur_pos[1], cur_pos[2], cur_dir])
+            X[len_bricks-1, :] = np.array([cur_type, cur_pos[0], cur_pos[1], cur_pos[2], cur_dir])
 
             self.node_matrix = X
 

@@ -19,7 +19,7 @@ brick2.set_direction(1)
 brick3.set_position([-1, -3, 1])
 brick3.set_direction(0)
 
-bricks_ = bricks.Bricks(6, '0')
+bricks_ = bricks.Bricks(6, 0)
 bricks_.add(brick1)
 bricks_.add(brick2)
 
@@ -28,7 +28,7 @@ brick1 = brick.Brick()
 brick1.set_position([0, 0, 0])
 brick1.set_direction(0)
 
-bricks_ = bricks.Bricks(6, '0')
+bricks_ = bricks.Bricks(6, 0)
 bricks_.add(brick1)
 
 bricks_._validate_overlap()

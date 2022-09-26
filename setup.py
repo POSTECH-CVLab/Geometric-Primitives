@@ -14,12 +14,12 @@ with open(path_requirements) as f:
 
 setup(
     name='geometric_primitives',
-    version='0.1.1',
+    version='0.1.2',
     author='Jungtaek Kim',
     author_email='jtkim@postech.ac.kr',
     url='https://github.com/POSTECH-CVLab/Geometric-Primitives',
     license='MIT',
-    description='This package is for constructing a 3D shape.',
+    description='This package helps to construct a 3D shape.',
     packages=list_packages,
     python_requires='>=3.6, <4',
     install_requires=required,

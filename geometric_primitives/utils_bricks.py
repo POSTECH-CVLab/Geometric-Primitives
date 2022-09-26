@@ -3,6 +3,8 @@ import copy
 
 from geometric_primitives import brick
 from geometric_primitives import bricks
+from geometric_primitives import rules
+from geometric_primitives import utils_brick
 
 
 def align_bricks(bricks_):
@@ -82,15 +84,24 @@ def align_bricks_to_origin(bricks_):
     return bricks_aligned
 
 def convert_to_bricks(X, A):
+    num_types = np.unique(X[:, 0]).shape[0]
+
+    if num_types == 1:
+        brick_type = np.unique(X[:, 0])[0]
+    else:
+        brick_type = 'mixed'
+
     list_bricks = []
     for bx, ba in zip(X, A):
-        brick_ = brick.Brick()
-        brick_.set_position(bx[:3])
-        brick_.set_direction(bx[3])
+        size_upper, size_lower, height = utils_brick.get_size(bx[0])
+
+        brick_ = brick.Brick(size_upper, size_lower, height)
+        brick_.set_position(bx[1:4])
+        brick_.set_direction(bx[4])
 
         list_bricks.append(brick_)
 
-    bricks_ = Bricks(len(list_bricks))
+    bricks_ = Bricks(len(list_bricks), brick_type)
     bricks_.bricks = list_bricks
     try:
         bricks_.validate_all()
@@ -98,3 +109,45 @@ def convert_to_bricks(X, A):
         bricks_ = None
 
     return bricks_
+
+def get_rules(cur_type, next_type):
+    if cur_type == 0 and next_type == 0:
+        list_rules_ = copy.deepcopy(rules.LIST_RULES_2_4)
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_2_4)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_2_4)
+    elif cur_type == 1 and next_type == 1:
+        list_rules_ = copy.deepcopy(rules.LIST_RULES_2_2)
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_2_2)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_2_2)
+    elif cur_type == 2 and next_type == 2:
+        list_rules_ = copy.deepcopy(rules.LIST_RULES_1_2)
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_1_2)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_1_2)
+    elif cur_type == 0 and next_type == 1:
+        list_rules_ = copy.deepcopy(rules.LIST_RULES_24_22)
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_24_22)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_24_22)
+    elif cur_type == 0 and next_type == 2:
+        list_rules_ = copy.deepcopy(rules.LIST_RULES_24_12)
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_24_12)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_24_12)
+    elif cur_type == 1 and next_type == 0:
+        list_rules_ = copy.deepcopy(rules.LIST_RULES_22_24)
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_22_24)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_22_24)
+    elif cur_type == 1 and next_type == 2:
+        list_rules_ = copy.deepcopy(rules.LIST_RULES_22_12)
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_22_12)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_22_12)
+    elif cur_type == 2 and next_type == 0:
+        list_rules_ = copy.deepcopy(rules.LIST_RULES_12_24)
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_12_24)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_12_24)
+    elif cur_type == 2 and next_type == 1:
+        list_rules_ = copy.deepcopy(rules.LIST_RULES_12_22)
+        rules_ = copy.deepcopy(rules.RULE_CONTACTS_12_22)
+        probs_rules_ = copy.deepcopy(rules.PROBS_CONTACTS_12_22)
+    else:
+        raise ValueError('Invalid cur_type and next_type.')
+
+    return list_rules_, rules_, probs_rules_
